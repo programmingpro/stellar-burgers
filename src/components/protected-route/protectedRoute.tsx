@@ -17,17 +17,13 @@ export const ProtectedRoute = ({
   children,
   onlyUnAuth = false
 }: ProtectedRouteProps) => {
-  const isLogined = useSelector(isAuthCheckedSelector);
-
-  if (!isLogined) {
-    return <Login />;
-  }
+  debugger;
   const userData = useSelector(getUser);
   const location = useLocation();
-  if (!onlyUnAuth && !userData) {
+  if (!onlyUnAuth && userData.email == '' && userData.name == '') {
     return <Navigate to='/login' state={{ from: location }} />;
   }
-  if (onlyUnAuth && userData) {
+  if (onlyUnAuth && userData.email != '' && userData.name != '') {
     return <Navigate to='/' />;
   }
   return children ? children : <Outlet />;

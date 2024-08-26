@@ -9,6 +9,8 @@ import {
 } from '@api';
 import { TUser } from '@utils-types';
 import { UserActionTypes } from './enums';
+import { Navigate } from 'react-router';
+import React from 'react';
 
 export const signIn = createAsyncThunk(UserActionTypes.SignIn, loginUserApi);
 
@@ -40,7 +42,6 @@ export interface TUserState {
   user: TUser;
   error: string | undefined;
 }
-
 export const userSlice = createSlice({
   initialState: initialUserState,
   name: 'user',
@@ -60,6 +61,7 @@ export const userSlice = createSlice({
       });
     builder
       .addCase(signIn.fulfilled, (state, action) => {
+        debugger;
         state.isAuthenticated = true;
         setCookie('accessToken', action.payload.accessToken);
         localStorage.setItem('refreshToken', action.payload.refreshToken);
