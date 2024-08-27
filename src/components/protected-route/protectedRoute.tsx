@@ -1,7 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom';
-import { useSelector } from '../../services/store';
+import store, { useSelector } from '../../services/store';
 import { Navigate } from 'react-router';
-import { Login } from '@pages';
 import {
   getUser,
   isAuthCheckedSelector
@@ -13,17 +12,37 @@ type ProtectedRouteProps = {
   children: React.ReactElement;
 };
 
+const loadState = () => {
+  try {
+    const serializedState = localStorage.getItem('authState');
+    if (serializedState === null) {
+      return undefined;
+    }
+    return JSON.parse(serializedState);
+  } catch (err) {
+    return undefined;
+  }
+};
+
+export const saveState = (state: any) => {
+  try {
+    const serializedState = JSON.stringify(state);
+    localStorage.setItem('authState', serializedState);
+  } catch {
+    // ignore write errors
+  }
+};
+
 export const ProtectedRoute = ({
   children,
   onlyUnAuth = false
 }: ProtectedRouteProps) => {
-  debugger;
-  const userData = useSelector(getUser);
+  const isLoggedIn = loadState().isAuthenticated;
   const location = useLocation();
-  if (!onlyUnAuth && userData.email == '' && userData.name == '') {
+  if (!onlyUnAuth && !isLoggedIn) {
     return <Navigate to='/login' state={{ from: location }} />;
   }
-  if (onlyUnAuth && userData.email != '' && userData.name != '') {
+  if (onlyUnAuth && isLoggedIn) {
     return <Navigate to='/' />;
   }
   return children ? children : <Outlet />;

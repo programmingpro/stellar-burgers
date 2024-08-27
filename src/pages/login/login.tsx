@@ -1,11 +1,10 @@
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
 import { LoginUI } from '@ui-pages';
-import { useDispatch, useSelector } from '../../services/store';
+import store, { useDispatch, useSelector } from '../../services/store';
 import { getError, getUser, signIn } from '../../services/slices/userSlice';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export const Login: FC = () => {
-  debugger;
   const dispatch = useDispatch();
   const error = useSelector(getError);
   const location = useLocation();
@@ -20,9 +19,8 @@ export const Login: FC = () => {
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
-    await dispatch(signIn({ email, password }));
-    debugger;
-    navigate(location.state.from.pathname);
+    const result = await dispatch(signIn({ email, password }));
+    navigate(location.state?.from?.pathname || '/');
   };
 
   return (

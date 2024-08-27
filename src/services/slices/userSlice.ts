@@ -1,4 +1,4 @@
-import { setCookie } from '../../utils/cookie';
+import { deleteCookie, setCookie } from '../../utils/cookie';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import {
   registerUserApi,
@@ -11,6 +11,8 @@ import { TUser } from '@utils-types';
 import { UserActionTypes } from './enums';
 import { Navigate } from 'react-router';
 import React from 'react';
+import store from '../store';
+import { saveState } from '../../components/protected-route/protectedRoute';
 
 export const signIn = createAsyncThunk(UserActionTypes.SignIn, loginUserApi);
 
@@ -52,6 +54,7 @@ export const userSlice = createSlice({
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.error = '';
+        saveState(state);
       })
       .addCase(signUp.rejected, (state, action) => {
         state.error = action.error.message!;
@@ -61,45 +64,53 @@ export const userSlice = createSlice({
       });
     builder
       .addCase(signIn.fulfilled, (state, action) => {
-        debugger;
         state.isAuthenticated = true;
         setCookie('accessToken', action.payload.accessToken);
         localStorage.setItem('refreshToken', action.payload.refreshToken);
         state.user = action.payload.user;
         state.error = '';
+        saveState(state);
       })
       .addCase(signIn.rejected, (state, action) => {
         state.isAuthenticated = false;
         state.error = action.error.message!;
+        saveState(state);
       })
       .addCase(signIn.pending, (state) => {
         state.isAuthenticated = false;
         state.error = '';
+        saveState(state);
       });
     builder
       .addCase(fetchUserData.fulfilled, (state, action) => {
         state.isAuthenticated = true;
         state.user = action.payload.user;
+        saveState(state);
       })
       .addCase(fetchUserData.rejected, (state, action) => {
         state.isAuthenticated = false;
         state.error = action.error.message!;
+        saveState(state);
       });
     builder
       .addCase(modifyUser.fulfilled, (state, action) => {
         state.isAuthenticated = true;
         state.user = action.payload.user;
+        saveState(state);
       })
       .addCase(modifyUser.rejected, (state, action) => {
         state.isAuthenticated = false;
         state.error = action.error.message!;
+        saveState(state);
       })
       .addCase(modifyUser.pending, (state) => {
         state.error = '';
       });
     builder.addCase(signOut.fulfilled, (state) => {
+      deleteCookie('accessToken');
       state.isAuthenticated = false;
       state.user = { email: '', name: '' };
+      saveState(state);
     });
   },
   selectors: {
